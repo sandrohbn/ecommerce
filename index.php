@@ -7,7 +7,10 @@
 
 	$app->get('/', function() {
 	    
-		echo "OK";
+		//echo "OK";
+		$sql = new tsh\db\Sql();
+		$result = $sql->select("SELECT * FROM tb_users");
+		echo json_encode($result);
 
 	});
 

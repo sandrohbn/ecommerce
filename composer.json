@@ -13,7 +13,7 @@
     },
     "autoload": {
         "psr-4": {
-            "": "vendor\\tsh\\php-classes\\src"
+            "tsh\\": "vendor\\tsh\\php-classes\\src"
         }
     }
 }
