@@ -274,7 +274,7 @@ class POP3
         if (empty($password)) {
             $password = $this->password;
         }
-
+		
         // Send the Username
         $this->sendString("USER $username" . self::CRLF);
         $pop3_response = $this->getResponse();

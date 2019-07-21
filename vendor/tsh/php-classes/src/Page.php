@@ -13,37 +13,45 @@
 			"data"=>[]
 		];
 
-		public function __construct($opt = array(), $tpl_dir = "/view/"){
+		public function __construct($opt = array(), $tpl_dir = "/view/")
+		{
+			$this->default["data"]["session"] = $_SESSION;
 
 			$this->option = array_merge($this->default, $opt);
+
 			$config = array(
 				"tpl_dir"       => $_SERVER["DOCUMENT_ROOT"].$tpl_dir,
 				"cache_dir"     => $_SERVER["DOCUMENT_ROOT"]."/view-cache/",
 				"debug"         => false // set to false to improve the speed
 			);
 
-			Tpl::configure( $config );
+			Tpl::configure($config);
 
 			$this->tpl = new Tpl;
+
 			$this->setData($this->option["data"]);
 
-			if ($this->option["header"] === true) {
+			if ($this->option["header"] === true) 
+			{
 				$this->tpl->draw("header");
 			}
 		}
 
 		private function setData($data = array())
 		{
+			/*var_dump($data);*/
 			foreach ($data as $key => $value)
 			{
+				/*var_dump($value);*/
 				$this->tpl->assign($key, $value);
 			}
 		}
 
-		public function setTpl($nome, $data = array(), $returnHTML = false)
+		public function setTpl($name, $data = array(), $returnHTML = false)
 		{
-			$this->setData();
-			return $this->tpl->draw($nome, $returnHTML);
+			$this->setData($data);
+
+			return $this->tpl->draw($name, $returnHTML);
 		}
 
 		public function __destruct()

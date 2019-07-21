@@ -1,4 +1,4 @@
-<?php 
+<?php
 	namespace tsh;
 
 	class Model
@@ -10,14 +10,16 @@
 			$method = substr($name, 0, 3);
 			$fieldName = substr($name, 3, strlen($name));
 			
-			/* var_dump($method, $fieldName);
-			exit; */
+			/*var_dump($method, $fieldName);
+			exit;*/
 
 			switch ($method) {
 				case "get":
 					return $this->value[$fieldName];
 					break;
 				case "set":
+					/*var_dump($arg[0]);
+					exit;*/
 					$this->value[$fieldName] = $arg[0];
 					break;
 				default:
