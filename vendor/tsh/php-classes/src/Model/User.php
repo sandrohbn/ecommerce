@@ -261,24 +261,6 @@
     			$iv
     		);
 
-			/*
-			$slc = "SELECT *
-				      FROM tb_persons prs
-				           INNER JOIN tb_users usr USING(idperson)
-				     WHERE prs.desemail = :email";
-			
-			$slc = "
-			  SELECT *
-				FROM tb_persons prs
-				     INNER JOIN tb_users usr
-         		   	   ON usr.idperson = prs.idperson
-			   WHERE prs.desemail = :email
-			";
-			$sql = new Sql();			
-			$rsl = $sql->select($slc, array(
-				":email"=>$email
-			));
-*/
 			$sql = new Sql();
 
 			$rsl = $sql->select(

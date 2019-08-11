@@ -7,6 +7,7 @@
 	use \tsh\Page;
 	use \tsh\PageAdmin;
 	use \tsh\Model\User;
+	use \tsh\Model\Category;
 
 	$app = new Slim();
 
@@ -97,7 +98,6 @@
 		header("Location: /admin/users");
 		exit;
 	});
-
 	$app->get("/admin/users/delete/:iduser", function($iduser)
 	{
 		User::verifyLogin();
@@ -160,15 +160,67 @@
 			PASSWORD_DEFAULT,
 			["cost"=>12]
 		);
-
 		$user->setPassword($password);
-
 	    $page = new PageAdmin([
 	    	"header"=>false,
 	    	"footer"=>false
 	    ]);
-
 	    $page->setTpl("forgot-reset-success");		
+	});
+
+	$app->get("/admin/categories", function()
+	{
+		User::verifyLogin();
+		$categories = category::listAll();
+	    $page = new PageAdmin();
+	    $page->setTpl("categories", 
+	    	["categories"=>$categories]
+	    );
+	});
+	$app->get("/admin/categories/create", function()
+	{
+		User::verifyLogin();
+	    $page = new PageAdmin();
+	    $page->setTpl("categories-create");
+	});
+	$app->post("/admin/categories/create", function()
+	{
+		User::verifyLogin();
+	    $category = new Category();
+	    $category->setData($_POST);
+	    $category->save();
+	    header('Location: /admin/categories');
+	    exit;
+	});
+	$app->get("/admin/categories/delete/:iduser", function($idcategory)
+	{
+		User::verifyLogin();
+		$category = new Category();
+		$category->get((int)$idcategory);
+		$category->delete();
+	    header('Location: /admin/categories');
+	    exit;
+	});
+	$app->get("/admin/categories/update/:idcategory", function($idcategory)
+	{
+		//var_dump($idcategory);
+		User::verifyLogin();
+		$category = new Category();
+		$category->get((int)$idcategory);
+	    $page = new PageAdmin();
+	    $page->setTpl("categories-update",
+	      ['category'=>$category->getData()]
+		);
+	});
+	$app->post("/admin/categories/update/:idcategory", function($idcategory)
+	{
+		User::verifyLogin();
+		$category = new Category();
+		$category->get((int)$idcategory);
+		$category->setData($_POST);
+		$category->save();
+	    header('Location: /admin/categories');
+	    exit;
 	});
 
 	$app->run();

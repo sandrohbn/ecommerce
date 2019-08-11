@@ -15,7 +15,7 @@
 
 			switch ($method) {
 				case "get":
-					return $this->value[$fieldName];
+					return (isset($this->value[$fieldName]) ? $this->value[$fieldName] : NULL);
 					break;
 				case "set":
 					/*var_dump($arg[0]);
@@ -35,9 +35,13 @@
 			}
 		}
 
-		public function getData()
+		public function getData($key = null)
 		{
-			return $this->value;
+			if (!is_null($key)) {
+				return isset($this->value[$key]) ? $this->value[$key] : null;
+			} else {
+				return $this->value;
+			}			    
 		}
 	}
 ?>
