@@ -23,6 +23,7 @@
 				":descategory"=>$this->getdescategory()
 			));
 			$this->setData($rsl[0]);
+			Category::updateFile();
 		}
 
 		public function get($idcategory)
@@ -41,6 +42,20 @@
 			$sql->query(
 			 "DELETE FROM TB_CATEGORIES WHERE IDCATEGORY = :idcategory",
 			 [':idcategory'=>$this->getidcategory()] 
+			);
+			Category::updateFile();
+		}
+
+		public static function updateFile()
+		{
+			$category = Category::listAll();
+			$html = [];
+			foreach ($category as $row) {
+				array_push($html, '<li><a href="/category/'.$row['idcategory'].'">'.$row['descategory'].'</a></li>');
+			}
+			file_put_contents(
+				$_SERVER['DOCUMENT_ROOT'].DIRECTORY_SEPARATOR."view".DIRECTORY_SEPARATOR."category-menu.html", 
+				implode('', $html)
 			);
 		}
 	}
