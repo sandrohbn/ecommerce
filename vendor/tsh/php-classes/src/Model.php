@@ -35,13 +35,14 @@
 			}
 		}
 
-		public function getData($key = null)
+		//public function getData($key = null)
+		public function getData()
 		{
-			if (!is_null($key)) {
-				return isset($this->value[$key]) ? $this->value[$key] : null;
-			} else {
+			//if (!is_null($key)) {
+			//	return isset($this->value[$key]) ? $this->value[$key] : null;
+			//} else {
 				return $this->value;
-			}			    
+			//}			    
 		}
 	}
 ?>

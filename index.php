@@ -4,26 +4,37 @@
 	require_once("vendor/autoload.php");
 
 	use \Slim\Slim;
+	/* transferido para cada respectivo php
 	use \tsh\Page;
 	use \tsh\PageAdmin;
 	use \tsh\Model\User;
 	use \tsh\Model\Category;
+	*/
 
 	$app = new Slim();
 
 	$app->config("debug", true);
 
+	require_once("admin.php");
+	require_once("admin-category.php");
+	require_once("admin-login.php");
+	require_once("admin-product.php");
+	require_once("admin-user.php");
+	require_once("site.php");
+
+	/*transferido para site.php
 	$app->get("/", function() {
 	    $page = new Page();
 	    $page->setTpl("index");
 	});
+	*/
 
+	/*transferido para admin.php
 	$app->get("/admin/", function() {
 		User::verifyLogin();
 	    $page = new PageAdmin();
 	    $page->setTpl("index");
 	});
-
 	$app->get("/admin/login/", function() {
 	    $page = new PageAdmin([
 	    	"header"=>false, //login nao tem header/footer pq já é chamado na pagina admin
@@ -31,19 +42,19 @@
 	    ]);
 	    $page->setTpl("login"); //chama o template login  
 	});
-
 	$app->post("/admin/login/", function() {
 		User::login($_POST["login"], $_POST["password"]);
 		header("Location: /admin");
 		exit;
 	});
-
 	$app->get("/admin/logout", function() {
 		User::logout();
 		header("Location: /admin/login/");
 		exit;
 	});
+	*/
 
+	/*transferido para usuario.php
 	//Tela lista todos usuarios 7:55
 	$app->get("/admin/users", function() {
 		User::verifyLogin();
@@ -108,7 +119,9 @@
 		header("Location: /admin/users");
 		exit;
 	});
+	*/
 
+	/*transferido para admin-login
 	$app->get("/admin/forgot", function()
 	{
 	    $page = new PageAdmin([
@@ -167,7 +180,9 @@
 	    ]);
 	    $page->setTpl("forgot-reset-success");		
 	});
+	*/
 
+	/*transferido para admin-category.php
 	$app->get("/admin/categories", function()
 	{
 		User::verifyLogin();
@@ -232,6 +247,7 @@
 			'product'=>[]
 		]);
 	});
+	*/
 
 	$app->run();
  ?>
