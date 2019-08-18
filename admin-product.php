@@ -43,10 +43,10 @@
 		User::verifyLogin();
 		$product = new Product();
 		$product->get((int)$idproduct);
-		$product->setData($_POST);
+		$product->setData($_POST); //recebe os campos da classe
 		$product->save();
 		//var_dump($_FILES); exit;
-		$product->setPhoto($_FILES["file"]);
+		$product->setPhoto($_FILES["file"]); //recebe nome de arquivo
 		header("Location: /admin/products");
 		exit;
 	});

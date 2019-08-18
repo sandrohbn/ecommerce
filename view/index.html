@@ -85,6 +85,25 @@
                     <div class="latest-product">
                         <h2 class="section-title">Produtos</h2>
                         <div class="product-carousel">
+                            {loop="$products"}
+                                <div class="single-product">
+                                    <div class="product-f-image">
+                                        <img src="{$value.desphoto}" alt="">
+                                        <div class="product-hover">
+                                            <a href="#" class="add-to-cart-link"><i class="fa fa-shopping-cart"></i> Comprar</a>
+                                            <a href="/product/{$value.desurl}" class="view-details-link"><i class="fa fa-link"></i> Ver Detalhes</a>
+                                        </div>
+                                    </div>                                    
+                                    <h2><a href="/product/{$value.desurl}">{$value.desproduct}</a></h2>
+                                    <div class="product-carousel-price">
+                                        <ins>R${function="formatPrice($value.vlprice)"}</ins>
+                                        <!--criar promoção preço antigo
+                                            <del>$1.99</del>
+                                        -->
+                                    </div> 
+                                </div>
+                            {/loop}
+                            <!--substituido statico pelo carregamento dos produtos do bd
                             <div class="single-product">
                                 <div class="product-f-image">
                                     <img src="/res/site/img/product-1.jpg" alt="">
@@ -174,6 +193,7 @@
                                     <ins>$400.00</ins>
                                 </div>                            
                             </div>
+                            -->
                         </div>
                     </div>
                 </div>

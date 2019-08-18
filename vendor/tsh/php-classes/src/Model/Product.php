@@ -13,6 +13,16 @@
 			return $sql->select("SELECT * FROM tb_products prd ORDER BY prd.desproduct");
 		}
 
+		public static function checkList($list)
+		{
+			foreach ($list as &$row) { //& manipular a mesma variavel na memoria
+				$prd = new Product();
+				$prd->setData($row);
+				$row = $prd->getData();
+			}
+			return $list;
+		}
+
 		public function save()
 		{
 			$sql = new Sql();
@@ -78,32 +88,42 @@
 
 		public function setPhoto($file)
 		{
-			$extension = explode('.', $file['name']);
-			$extension = end($extension);
-			switch ($extension) {
-				case 'jpg':
-				case 'jpeg':
-					$image = imagecreatefromjpeg($file["tmp_name"]);
-					break;
-				case 'gif':
-					$image = imagecreatefromgif($file["tmp_name"]);
-					break;
-				case 'png':
-					$image = imagecreatefrompng($file["tmp_name"]);
-					break;
-				default:
-					$image = imagecreatefromwbmp($file["tmp_name"]);
-					break;
+			if ($file['name'] !== '') 
+			{
+				$extension = explode('.', $file['name']);
+				$extension = end($extension);
+				switch ($extension) {
+					case 'jpg':
+					case 'jpeg':
+						$image = imagecreatefromjpeg($file["tmp_name"]);
+						break;
+					case 'gif':
+						$image = imagecreatefromgif($file["tmp_name"]);
+						break;
+					case 'png':
+						$image = imagecreatefrompng($file["tmp_name"]);
+						break;
+					case 'bmp':
+						$image = imagecreatefromwbmp($file["tmp_name"]);
+						break;
+					default:
+						echo "Falha na conversão de Imagem (Use: jpg,gif,png,bmp)";
+						echo $image;
+						break;
+				}
+				if (isset($image))
+				{
+					$imageDestino = $_SERVER['DOCUMENT_ROOT'].DIRECTORY_SEPARATOR.
+						"res".DIRECTORY_SEPARATOR.
+						"site".DIRECTORY_SEPARATOR.
+						"img".DIRECTORY_SEPARATOR.
+						"product".DIRECTORY_SEPARATOR.
+						$this->getidproduct().".jpg";
+					imagejpeg($image, $imageDestino);
+					imagedestroy($image);
+					$this->checkPhoto();
+				}
 			}
-			$imageDestino = $_SERVER['DOCUMENT_ROOT'].DIRECTORY_SEPARATOR.
-				"res".DIRECTORY_SEPARATOR.
-				"site".DIRECTORY_SEPARATOR.
-				"img".DIRECTORY_SEPARATOR.
-				"product".DIRECTORY_SEPARATOR.
-				$this->getidproduct().".jpg";
-			imagejpeg($image, $imageDestino);
-			imagedestroy($image);
-			$this->checkPhoto();
 		}
 	}
 ?>

@@ -15,6 +15,7 @@
 
 	$app->config("debug", true);
 
+	require_once("function.php");
 	require_once("admin.php");
 	require_once("admin-category.php");
 	require_once("admin-login.php");
