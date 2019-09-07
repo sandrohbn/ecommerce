@@ -74,6 +74,30 @@
 			);
 		}
 
+		public function getProductPage($page=1, $itemPerPage=3)
+		{
+			$start = ($page-1) * $itemPerPage;
+			$sql = new Sql();
+			$rst = $sql->select("
+				SELECT SQL_CALC_FOUND_ROWS PRD.*
+				  FROM TB_PRODUCTS PRD
+				       JOIN TB_PRODUCTSCATEGORIES PCA
+				         ON PCA.IDPRODUCT = PRD.IDPRODUCT
+				       JOIN TB_CATEGORIES CAT
+				         ON CAT.IDCATEGORY = PCA.IDCATEGORY
+				  WHERE CAT.IDCATEGORY = :idcategory
+				  LIMIT $start, $itemPerPage",
+				[':idcategory'=>$this->getidcategory()]);
+
+			$rstTotal = $sql->select("SELECT FOUND_ROWS() AS RSTTOTAL");
+
+			return [
+				'data'=>Product::checkList($rst),
+				'total'=>(int)$rstTotal[0]["RSTTOTAL"],
+				'pages'=>ceil($rstTotal[0]["RSTTOTAL"] / $itemPerPage)
+			];         //ceil arrendonda para cima
+		}
+
 		public function addProduct(Product $product)
 		{
 			$sql = new Sql();
