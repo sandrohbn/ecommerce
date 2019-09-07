@@ -1,7 +1,8 @@
 <?php //arquivo de configuraçao
-	use \tsh\Page;
+	use \tsh\PageAdmin;
 	use \tsh\Model\User;
 	use \tsh\Model\Category;
+	use \tsh\Model\Product;
 
 	$app->get("/admin/categories", function()
 	{
@@ -63,13 +64,40 @@
 	    exit;
 	});
 
-	$app->get("/category/:idcategory", function($idcategory){
+	$app->get("/admin/categories/:idcategory/products", function($idcategory){
+		User::verifyLogin();
 		$category = new Category();
 		$category->get((int)$idcategory);
-		$page = new Page();
-		$page->setTpl("category", [
+		//var_dump($category->getProduct()); exit;
+		$page = new PageAdmin();
+		$page->setTpl("categories-products", [
 			'category'=>$category->getData(),
-			'product'=>[]
+			'productsRelated'=>$category->getProduct(),
+			'productsNotRelated'=>$category->getProduct(false)
 		]);
+	});
+
+	$app->get("/admin/categories/:idcategory/products/:idproduct/add", 
+		function($idcategory, $idproduct){
+			User::verifyLogin();
+			$category = new Category();
+			$category->get((int)$idcategory);
+			$product = new Product();
+			$product->get((int)$idproduct);
+			$category->addProduct($product);
+		    header('Location: /admin/categories/'.$idcategory.'/products');
+		    exit;
+	});
+
+	$app->get("/admin/categories/:idcategory/products/:idproduct/remove", 
+		function($idcategory, $idproduct){
+			User::verifyLogin();
+			$category = new Category();
+			$category->get((int)$idcategory);
+			$product = new Product();
+			$product->get((int)$idproduct);
+			$category->removeProduct($product);
+		    header('Location: /admin/categories/'.$idcategory.'/products');
+		    exit;
 	});
 ?>

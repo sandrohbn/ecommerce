@@ -17,6 +17,7 @@
             {loop="$product"}
                 <div class="col-md-3 col-sm-6">
                     <div class="single-shop-product">
+                        <!--                        
                         <div class="product-upper">
                             <img src="/res/site/img/product-2.jpg" alt="">
                         </div>
@@ -27,7 +28,19 @@
                         
                         <div class="product-option-shop">
                             <a class="add_to_cart_button" data-quantity="1" data-product_sku="" data-product_id="70" rel="nofollow" href="/canvas/shop/?add-to-cart=70">Add to cart</a>
-                        </div>                       
+                        </div>
+                        -->
+                        <div class="product-upper">
+                            <img src="{$value.desphoto}" alt="">
+                        </div>
+                        <h2><a href="/product/{$value.desurl}">{$value.desproduct}}</a></h2>
+                        <div class="product-carousel-price">
+                            <ins>R${function="formatPrice($value.vlprice)"}</ins> <del>R${function="formatPrice($value.vlprice*(1+15/100))"}</del>
+                        </div>  
+                        
+                        <div class="product-option-shop">
+                            <a class="add_to_cart_button" data-quantity="1" data-product_sku="" data-product_id="70" rel="nofollow" href="/canvas/shop/?add-to-cart=70">Comprar</a>
+                        </div>                        
                     </div>
                 </div>
             {/loop}

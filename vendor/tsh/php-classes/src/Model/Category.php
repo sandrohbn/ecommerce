@@ -58,5 +58,45 @@
 				implode('', $html)
 			);
 		}
+
+		public function getProduct($related = true)
+		{
+			$sql = new Sql();
+			return $sql->select(
+				"SELECT PRD.* FROM TB_PRODUCTS PRD
+				  WHERE PRD.IDPRODUCT " . (($related)?"":"NOT ") . "IN 
+				       (SELECT PRD.IDPRODUCT 
+				          FROM TB_PRODUCTS PRD
+				               JOIN TB_PRODUCTSCATEGORIES PCA
+				                 ON PCA.IDPRODUCT = PRD.IDPRODUCT
+				         WHERE PCA.IDCATEGORY = :idcategory)",
+				[':idcategory'=>$this->getidcategory()]
+			);
+		}
+
+		public function addProduct(Product $product)
+		{
+			$sql = new Sql();
+			$sql->query(
+				"INSERT INTO TB_PRODUCTSCATEGORIES
+					(IDCATEGORY, IDPRODUCT)
+				 VALUES
+				 	(:idcategory, :idproduct)",
+				[':idcategory'=>$this->getidcategory(),
+				 ':idproduct'=>$product->getidproduct()]
+			);
+		}
+
+		public function removeProduct(Product $product)
+		{
+			$sql = new Sql();
+			$sql->query(
+				"DELETE FROM TB_PRODUCTSCATEGORIES
+				  WHERE IDCATEGORY = :idcategory
+				  AND   IDPRODUCT  = :idproduct",
+				[':idcategory'=>$this->getidcategory(),
+				 ':idproduct'=>$product->getidproduct()]
+			);
+		}
 	}
 ?>
