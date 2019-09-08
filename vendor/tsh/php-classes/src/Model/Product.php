@@ -125,5 +125,35 @@
 				}
 			}
 		}
+
+		public function getFromURL($desurl)
+		{
+			$sql = new Sql();
+			$rst = $sql->select("
+				SELECT * 
+				  FROM TB_PRODUCTS
+				 WHERE DESURL = :desurl
+				 LIMIT 1",
+				[':desurl'=>$desurl]
+			);
+			$this->setData($rst[0]);
+		}
+
+		public function getCategory()
+		{
+			$sql = new Sql();
+
+			var_dump("SELECT CAT.* FROM TB_CATEGORIES CAT JOIN TB_PRODUCTSCATEGORIES PCA ON PCA.IDCATEGORY = CAT.IDCATEGORY WHERE PCA.IDPRODUCT = ".$this->getidproduct());
+			exit;
+
+			return $sql->select("
+				SELECT CAT.*
+				  FROM TB_CATEGORIES CAT
+				       JOIN TB_PRODUCTSCATEGORIES PCA
+				         ON PCA.IDCATEGORY = CAT.IDCATEGORY
+				 WHERE PCA.IDPRODUCT = :idproduct",
+				 [':idproduct'=>$this->getidproduct()]
+			);
+		}
 	}
 ?>
