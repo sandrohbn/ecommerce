@@ -143,8 +143,8 @@
 		{
 			$sql = new Sql();
 
-			var_dump("SELECT CAT.* FROM TB_CATEGORIES CAT JOIN TB_PRODUCTSCATEGORIES PCA ON PCA.IDCATEGORY = CAT.IDCATEGORY WHERE PCA.IDPRODUCT = ".$this->getidproduct());
-			exit;
+			//var_dump("SELECT CAT.* FROM TB_CATEGORIES CAT JOIN TB_PRODUCTSCATEGORIES PCA ON PCA.IDCATEGORY = CAT.IDCATEGORY WHERE PCA.IDPRODUCT = ".$this->getidproduct());
+			//exit;
 
 			return $sql->select("
 				SELECT CAT.*

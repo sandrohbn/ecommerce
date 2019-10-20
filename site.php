@@ -2,6 +2,7 @@
 	use \tsh\Page;
 	use \tsh\Model\Product;
 	use \tsh\Model\Category;
+	use \tsh\Model\Cart;
 
 	$app->get("/", function() {
 		$prd = Product::listAll();
@@ -48,4 +49,10 @@
 			'category'=>$product->getCategory()
 		]);
 	});
+
+	$app->get("/cart", function(){
+		$cart = Cart::getFromSession();
+		$page = new Page();
+		$page->setTpl("cart");
+	})
 ?>

@@ -8,26 +8,54 @@
 	class User extends Model
 	{
 		const SESSION = "User";
-		/*? Avaliar gravar bd ou ini.cfg criptografado
-		const SECRET = ":SECRET"; //tam fixo 16,24, e outros
-		const ALGORITMO = ":ALGORITMO";
-		*/
+		//*? SECRET avaliar gravar bd ou ini.cfg criptografado (tam fixo 16,24, e outros)
+		const SECRET = ":SECRET"; 		 //usada em "Esqueci a senha"
+		const ALGORITMO = "AES-128-CBC"; //usada em "Esqueci a senha"
 		const MSGEXPTUSER001 = "Usuário ou senha inválidos";
 		const MSGEXPTUSER002 = "Não foi possivel recuperar a senha";
+		const MSGEXPTUSER003 = " ao recuperar a senha";
+
+		public static function getFromSession()
+		{
+			$user = new User();
+
+			if (isset($_SESSION[User::SESSION]) && (int)$_SESSION[User::SESSION]['iduser'] > 0)
+			{
+				$user->setData($_SESSION[User::SESSION]);
+			}
+			return $user; //Se nao carregou vai retorna vazio ou nulo
+		}		
+
+		public static function checkLogin($inadmin = true) //$inadmin é rota EXCLUSIVA administração
+		{
+			if (!isset($_SESSION[User::SESSION]) || //seção !NAO! definida (NAO LOGADO) ou 
+				!$_SESSION[User::SESSION] ||		//esta definida mas esta vazia
+				!(int)$_SESSION[User::SESSION]["iduser"] > 0) 
+			{
+				return false; //não esta logado
+			} 
+			elseif (($inadmin === true && (bool)$_SESSION[User::SESSION]['inadmin'] === true) ||
+				   //(é rota EXCLUSIVA e esta logado como administrador) ou  
+		     	   ($inadmin === false)) { //NAO é rota EXCLUSIVA da administração (exemplo carrinho)
+				return true;
+			} else {
+				return false; //NÃO esta logado
+			}
+		}
 
 		public static function login($login, $password)
 		{
 			$sql = new Sql();
-			$result = $sql->select(
+			$rst = $sql->select(
 				"SELECT * FROM tb_users WHERE deslogin = :LOGIN", 
 				array(":LOGIN"=>$login));
 
-			if (count($result) === 0)
+			if (count($rst) === 0)
 			{
 				throw new \Exception(User::MSGEXPTUSER001);
 			}
 
-			$data = $result[0];
+			$data = $rst[0];
 
 			if (password_verify($password, $data["despassword"]) === true)
 			{
@@ -38,8 +66,7 @@
 				*/
 				$user->setData($data);
 
-				/*var_dump($user);
-				exit;*/
+				/*var_dump($user);exit;*/
 
 				$_SESSION[User::SESSION] = $user->getData();
 
@@ -52,14 +79,8 @@
 		}
 
 		public static function verifyLogin($inadmin = true)
-		{
-			if (!isset($_SESSION[User::SESSION]) //existe a seção
-				||
-				!$_SESSION[User::SESSION] //
-				||
-				!(int)$_SESSION[User::SESSION]["iduser"] > 0
-				||
-				(bool)$_SESSION[User::SESSION]["inadmin"] !== $inadmin) 
+		{		//*? ! redirecionar?
+			if (!User::checkLogin($inadmin)) //nem sempre é necessário redirecionar para login
 			{
 				header("Location: /admin/login/");
 				exit;
@@ -200,17 +221,18 @@
 
 					openssl_encrypt compativel VERSAO 7.2.?
 					*/
-				    $rmdSecretIV = openssl_random_pseudo_bytes(openssl_cipher_iv_length(User::ALGORITMO)); // generate 16  random bytes
+
+				    $rmdSecret = openssl_random_pseudo_bytes(openssl_cipher_iv_length(User::ALGORITMO));
 
 					$code = openssl_encrypt(
 						$dataUsersPasswordsRecoveries["idrecovery"], //string que vai ser encriptada, 
 						User::ALGORITMO, //algoritmo
 						User::SECRET, //chave
 						0, //forma de retorno 0 só encripta e não precisa retornar nada
-						$rmdSecretIV
+						$rmdSecret
 					);
 
-				    $code = base64_encode($code . "::" . $rmdSecretIV);
+				    $code = base64_encode($code . "::" . $rmdSecret);
 
 					$lnk = "http://www.tshecommerce.com.br:81/admin/forgot/reset?code=$code";
 
@@ -225,9 +247,10 @@
 						)
 					);
 
-					//var_dump($mailer->send()); exit;
-
-					$mailer->send();
+					if (!$mailer->send() ) {
+						var_dump($mailer->send()); 
+						exit;
+					}
 
 					return $dataPersonsUsers;			
 				}
