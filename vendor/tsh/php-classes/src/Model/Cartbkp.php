@@ -44,7 +44,7 @@
 		{
 			$sql = new Sql();
 			$rst = $sql->select("SELECT * FROM TB_CARTS WHERE DESSESSIONID = :dessessionid",
-				['dessessionid'=>session_id()]
+				[':dessessionid'=>session_id()]
 			);
 			if (count($rst) > 0) {
 				$this->setData($rst[0]);
@@ -65,7 +65,7 @@
 		public function save()
 		{
 			$sql = new Sql();
-			$rst = $sql->select("CALL sp_carts_save
+			$rst = $sql->select("CALL SP_CARTS_SAVE
 				(:idcart, :dessessionid, :iduser, :deszipcode, :vlfreight, :nrdays)",
 				[':idcart'=>$this->getidcart(),
 				 ':dessessionid'=>$this->getdessessionid(),
@@ -76,7 +76,7 @@
 				);
 			$this->setData($rst[0]);
 		}
-//
+
 		public function addProduct(Product $product)
 		{
 			$sql = new Sql();
@@ -99,29 +99,27 @@
 			   ':idproduct'=>$product->getidproduct()
 			]);
 		}
-///*
+
 		public function getProducts()
 		{
 			$sql = new Sql();
-			//campos select em minuscula são usados em outros fontes e são case sensitive
 			$rst = $sql->select("
-				SELECT prd.idproduct, prd.desproduct, prd.vlprice, prd.vlwidth
-				      ,prd.vlheight, prd.vllength, prd.vlweight, prd.desurl
-				      ,count(1) nrqtd, sum(prd.vlprice) vlpricetotal
-				  FROM tb_cartsproducts cap
-				       JOIN tb_products prd
-				         ON prd.idproduct = cap.idproduct
-				 WHERE cap.idcart = :idcart
-				 AND   cap.dtremoved is null
-				 GROUP BY prd.idproduct, prd.desproduct, prd.vlprice, prd.vlwidth
-				         ,prd.vlheight, prd.vllength, prd.vlweight, prd.desurl
-				 ORDER BY prd.desproduct
+				SELECT PRD.IDPRODUCT, PRD.DESPRODUCT, PRD.VLPRICE, PRD.VLWIDTH
+				      ,PRD.VLHEIGHT, PRD.VLLENGTH, PRD.VLWEIGHT, PRD.DESURL
+				      ,COUNT(1) NRQTD, SUM(PRD.VLPRICE) VLPRICETOTAL
+				  FROM TB_CARTSPRODUCTS CAP
+				       JOIN TB_PRODUCTS PRD
+				         ON PRD.IDPRODUCT = CAP.IDPRODUCT
+				 WHERE CAP.IDCART = :idcart
+				 AND   CAP.DTREMOVED IS NULL
+				 GROUP BY PRD.IDPRODUCT, PRD.DESPRODUCT, PRD.VLPRICE, PRD.VLWIDTH
+				         ,PRD.VLHEIGHT, PRD.VLLENGTH, PRD.VLWEIGHT, PRD.DESURL
+				 ORDER BY PRD.DESPRODUCT
 			", [
 				':idcart'=>$this->getidcart()
 			]);
 			//var_dump(Product::checkList($rst)); exit;
 			return Product::checkList($rst); //checkList verificar figuras do produto
 		}
-//*/
 	}
 ?>
