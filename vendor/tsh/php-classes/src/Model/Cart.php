@@ -84,6 +84,8 @@
 				':idcart'=>$this->getidcart(),
 				':idproduct'=>$product->getidproduct()
 			]);
+
+			$this->getCalculateTotal();
 		}
 
 		public function removeProduct(Product $product, $all=false)
@@ -98,8 +100,10 @@
 			   ':idcart'=>$this->getidcart(),
 			   ':idproduct'=>$product->getidproduct()
 			]);
+
+			$this->getCalculateTotal();
 		}
-///*
+
 		public function getProducts()
 		{
 			$sql = new Sql();
@@ -122,6 +126,110 @@
 			//var_dump(Product::checkList($rst)); exit;
 			return Product::checkList($rst); //checkList verificar figuras do produto
 		}
-//*/
+
+		public function getProductsTotals()
+		{
+			$sql = new Sql();
+			//campos select em minuscula são usados em outros fontes e são case sensitive
+			$rst = $sql->select("
+				SELECT SUM(prd.vlprice) vlprice, SUM(prd.vlwidth) vlwidth
+				      ,SUM(prd.vlheight) vlheight, SUM(prd.vllength) vllength
+              		  ,SUM(prd.vlweight) vlweight, count(1) nrqtd
+				  FROM tb_cartsproducts cap
+				       JOIN tb_products prd
+				         ON prd.idproduct = cap.idproduct
+				 WHERE cap.idcart = :idcart
+				 AND   cap.dtremoved is null
+			", [
+				':idcart'=>$this->getidcart()
+			]);
+			//var_dump(Product::checkList($rst)); exit;
+
+			return (count($rst) > 0 ? $rst[0] : []);
+			/*
+			if (count($rst) > 0) {
+				return $rst[0];
+			} else {
+				return [];
+			}
+			*/
+		}
+
+		public function setfreight($nrzipcode)
+		{
+			$nrzipcode = str_replace('-', '', $nrzipcode);
+			$totals = $this->getProductsTotals();
+
+			//var_dump($totals); exit;
+
+			if ($totals['nrqtd'] > 0) {
+
+				if ($totals['vlheight'] < 2) $totals['vlheight'] = 2;
+				if ($totals['vllength'] < 16) $totals['vllength'] = 16;
+
+				$qs = http_build_query([
+					'nCdEmpresa'=>'', //Seu código administrativo junto à ECT.
+					'sDsSenha'=>'', //Senha associada ao código administrativo. 8 digitos CNPJ
+					'nCdServico'=>'40010', //=SEDEX Varejo. Outros separar por virgulas 40045,40215
+					'sCepOrigem'=>'28970000',
+					'sCepDestino'=>$nrzipcode,
+					'nVlPeso'=>$totals['vlweight'], //Peso incluindo embalagem em kg
+					'nCdFormato'=>'1', //1=Formato caixa/pacote; 2=Formato rolo/prisma; 3=Envelope
+					'nVlComprimento'=>$totals['vllength'], //Comprimento incluindo embalagem em cm
+					'nVlAltura'=>$totals['vlheight'],
+					'nVlLargura'=>$totals['vlwidth'],
+					'nVlDiametro'=>'0',
+					'sCdMaoPropria'=>'S',
+					'nVlValorDeclarado'=>$totals['vlprice'],
+					'sCdAvisoRecebimento'=>'S'
+				]);
+
+				$xml = simplexml_load_file("http://ws.correios.com.br/calculador/CalcPrecoPrazo.asmx/CalcPrecoPrazo?".$qs);
+
+				//echo json_encode((array)$xml); exit;
+
+				$rst = $xml->Servicos->cServico;
+
+				if ($rst->MsgErro != '') {
+					setMsgError($rst->MsgErro);
+				} else {
+					clearMsgError();
+				}
+
+				$this->setnrdays($rst->PrazoEntrega);
+				$this->setvlfreight(formatValueToDecimal($rst->Valor));
+				$this->setdeszipcode($nrzipcode);
+				$this->save();
+
+				return $rst;
+
+			} else {
+
+			}
+		}
+
+		public function updateFreight()
+		{
+			if ($this->getdeszipcode() != '') {
+				$this->setFreight($this->getdeszipcode());
+			}
+		}
+
+		public function getData() //sobrescrever para incluir o total 
+		{
+			$this->getCalculateTotal();
+			return parent::getData();
+		}
+
+		public function getCalculateTotal()
+		{
+			$this->updateFreight();
+
+			$totals = $this->getProductsTotals();
+
+			$this->setvlsubtotal($totals['vlprice']);
+			$this->setvltotal($totals['vlprice'] + $this->getvlfreight());
+		}
+
 	}
 ?>
