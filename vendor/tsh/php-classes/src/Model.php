@@ -18,8 +18,6 @@
 					return (isset($this->value[$fieldName]) ? $this->value[$fieldName] : NULL);
 					break;
 				case "set":
-					/*var_dump($arg[0]);
-					exit;*/
 					$this->value[$fieldName] = $arg[0];
 					break;
 				default:

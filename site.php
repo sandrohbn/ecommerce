@@ -3,6 +3,8 @@
 	use \tsh\Model\Product;
 	use \tsh\Model\Category;
 	use \tsh\Model\Cart;
+	use \tsh\Model\Address;
+	use \tsh\Model\User;
 
 	$app->get("/", function() {
 		$prd = Product::listAll();
@@ -114,5 +116,45 @@
 		
 		header("Location: /cart");
 		exit;		
+	});
+
+	$app->get("/checkout", function()
+	{
+		User::verifyLogin(false);
+
+		$cart = Cart::getFromSession();
+		$address = new Address();
+
+		$page = new Page();
+		$page->setTpl("checkout", [
+			'cart'=>$cart->getData(),
+			'address'=>$address->getData()
+		]);
+	});
+
+	$app->get("/login", function()
+	{
+		$page = new Page();
+		$page->setTpl("login", [
+			'error'=>getMsgError()
+		]);
+	});	
+
+	$app->post("/login", function()
+	{
+		try {
+			User::login($_POST['login'], $_POST['password']);
+		} catch(Exception $e) {
+			setMsgError($e->getMessage());
+		}
+		header("Location: /checkout");
+		exit;
+	});
+
+	$app->get("/logout", function()
+	{
+		User::logout();
+		header("Location: /login");
+		exit;
 	});
 ?>

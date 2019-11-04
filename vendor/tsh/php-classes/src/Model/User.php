@@ -26,11 +26,52 @@
 			return $user; //Se nao carregou vai retorna vazio ou nulo
 		}		
 
-		public static function checkLogin($inadmin = true) //$inadmin é rota EXCLUSIVA administração
+		public static function login($login, $password)
+		{
+			$sql = new Sql();
+				//"SELECT * FROM tb_users WHERE deslogin = :LOGIN"
+			$rst = $sql->select("
+				SELECT *
+				  FROM tb_users usr
+				       INNER JOIN tb_persons prs
+				          ON prs.idperson = usr.idperson				
+				 WHERE usr.deslogin = :LOGIN
+				", 
+				array(":LOGIN"=>$login)
+			);
+			if (count($rst) === 0)
+			{
+				throw new \Exception(User::MSGEXPTUSER001);
+			}
+
+			$data = $rst[0];
+
+			if (password_verify($password, $data["despassword"]) === true)
+			{
+				$user = new User();
+
+				$data['desperson'] = utf8_encode($data['desperson']);//tras do bd faz o encode
+
+				/*de campo a campo
+				$user->setiduser($data["iduser"]);
+				*/
+				$user->setData($data);
+
+				$_SESSION[User::SESSION] = $user->getData();
+
+				return $user;
+			}
+			else
+			{
+				throw new \Exception(User::MSGEXPTUSER001);
+			}
+		}
+
+		public static function checkLogin($inadmin = true) //$inadmin true é rota EXCLUSIVA administração
 		{
 			if (!isset($_SESSION[User::SESSION]) || //seção !NAO! definida (NAO LOGADO) ou 
 				!$_SESSION[User::SESSION] ||		//esta definida mas esta vazia
-				!(int)$_SESSION[User::SESSION]["iduser"] > 0) 
+				!(int)$_SESSION[User::SESSION]["iduser"] > 0) //NAO ! é maoir zero
 			{
 				return false; //não esta logado
 			} 
@@ -43,46 +84,15 @@
 			}
 		}
 
-		public static function login($login, $password)
-		{
-			$sql = new Sql();
-			$rst = $sql->select(
-				"SELECT * FROM tb_users WHERE deslogin = :LOGIN", 
-				array(":LOGIN"=>$login));
-
-			if (count($rst) === 0)
-			{
-				throw new \Exception(User::MSGEXPTUSER001);
-			}
-
-			$data = $rst[0];
-
-			if (password_verify($password, $data["despassword"]) === true)
-			{
-				$user = new User();
-
-				/*de campo a campo
-				$user->setiduser($data["iduser"]);
-				*/
-				$user->setData($data);
-
-				/*var_dump($user);exit;*/
-
-				$_SESSION[User::SESSION] = $user->getData();
-
-				return $user;
-			}
-			else
-			{
-				throw new \Exception(User::MSGEXPTUSER001);
-			}
-		}
-
 		public static function verifyLogin($inadmin = true)
 		{		//*? ! redirecionar?
 			if (!User::checkLogin($inadmin)) //nem sempre é necessário redirecionar para login
 			{
-				header("Location: /admin/login/");
+				if ($inadmin) {
+					header("Location: /admin/login");
+				} else {
+					header("Location: /login");
+				}
 				exit;
 			}
 		}
@@ -94,11 +104,13 @@
 
 		public static function listAll()
 		{
-			$slc = "SELECT *" .
-				   "  FROM tb_users usr" .
-				   "       INNER JOIN tb_persons prs" .
-         		   "		  ON prs.idperson = usr.idperson" .
-				   " ORDER BY prs.desperson";
+			$slc = "
+				SELECT usr.*, prs.*
+				  FROM tb_users usr
+				       INNER JOIN tb_persons prs
+				          ON prs.idperson = usr.idperson
+				 ORDER BY prs.desperson
+			";
 			/*
 			$slc = "SELECT * FROM tb_users usr INNER JOIN tb_persons prs USING (idperson) ORDER BY prs.desperson";
 			*/
@@ -113,9 +125,9 @@
 				   "  :desemail, :nrphone, :inadmin)";
 			$sql = new Sql();
 			$rsl = $sql->select($prc, array(
-				":desperson"=>$this->getdesperson(), 
+				":desperson"=>utf8_decode($this->getdesperson()),//grava bd faz o decode 
 				":deslogin"=>$this->getdeslogin(), 
-				":despassword"=>$this->getdespassword(),
+				":despassword"=>User::getPasswordHash($this->getdespassword()),
 				":desemail"=>$this->getdesemail(), 
 				":nrphone"=>$this->getnrphone(), 
 				":inadmin"=>$this->getinadmin()
@@ -126,17 +138,23 @@
 
 		public function get($iduser)
 		{
-			$slc = "SELECT *" .
-				   "  FROM tb_users usr" .
-				   "       INNER JOIN tb_persons prs" .
-         		   "		  ON prs.idperson = usr.idperson" .
-				   " WHERE usr.iduser = :iduser";
+			$slc = "
+				SELECT *
+				  FROM tb_users usr
+				       INNER JOIN tb_persons prs
+         		   		  ON prs.idperson = usr.idperson
+				 WHERE usr.iduser = :iduser
+			";
 			$sql = new Sql();
 			$rsl = $sql->select($slc, array(
 				":iduser"=>$iduser
 			));
 
-			$this->setData($rsl[0]);
+			$data = $rsl[0];
+
+			$data['desperson'] = utf8_encode($data['desperson']);//tras do bd faz encode
+
+			$this->setData($data);
 		}
 
 		public function update()
@@ -148,9 +166,9 @@
 			$sql = new Sql();
 			$rsl = $sql->select($prc, array(
 				":iduser"=>$this->getiduser(),
-				":desperson"=>$this->getdesperson(),
+				":desperson"=>utf8_decode($this->getdesperson()),//grava no bd faz decode
 				":deslogin"=>$this->getdeslogin(), 
-				":despassword"=>$this->getdespassword(),
+				":despassword"=>User::getPasswordHash($this->getdespassword()),
 				":desemail"=>$this->getdesemail(), 
 				":nrphone"=>$this->getnrphone(), 
 				":inadmin"=>$this->getinadmin()
@@ -177,7 +195,7 @@
 				     WHERE prs.desemail = :email";
 			*/
 			$slc = "
-			  SELECT *
+			  SELECT prs.*, usr.*
 				FROM tb_persons prs
 				     INNER JOIN tb_users usr
          		   	   ON usr.idperson = prs.idperson
@@ -287,7 +305,7 @@
 			$sql = new Sql();
 
 			$rsl = $sql->select(
-				"SELECT *
+				"SELECT upr.*, prs.*
 				   FROM tb_userspasswordsrecoveries upr
 				    	INNER JOIN tb_users usr
 				   	    ON usr.iduser = upr.iduser
@@ -333,6 +351,14 @@
 					":iduser"=>$this->getiduser()
 				)
 			);
+		}
+
+		//*avaliar necessidade de adaptacao desta funcao
+		public static function getPasswordHash($password)
+		{
+			return password_hash($password, PASSWORD_DEFAULT, [
+				'cost'=>12
+			]);
 		}
 	}
 ?>
