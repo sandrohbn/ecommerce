@@ -13,7 +13,7 @@
 		const ALGORITMO = "AES-128-CBC"; //usada em "Esqueci a senha"
 		const MSGEXPTUSER001 = "Usuário ou senha inválidos";
 		const MSGEXPTUSER002 = "Não foi possivel recuperar a senha";
-		const MSGEXPTUSER003 = " ao recuperar a senha";
+		const ERROR_REGISTER = "UserErrorRegister";
 
 		public static function getFromSession()
 		{
@@ -359,6 +359,34 @@
 			return password_hash($password, PASSWORD_DEFAULT, [
 				'cost'=>12
 			]);
+		}
+
+		public static function setErrorRegister($msg)
+		{
+			$_SESSION[User::ERROR_REGISTER] = $msg;
+		}
+
+		public static function getErrorRegister()
+		{
+			$msg = (isset($_SESSION[User::ERROR_REGISTER]) && $_SESSION[User::ERROR_REGISTER]) ? $_SESSION[User::ERROR_REGISTER] : '';
+			User::clearErrorRegister();
+			return $msg;
+		}
+
+		public static function clearErrorRegister()
+		{
+			$_SESSION[User::ERROR_REGISTER] = NULL;
+		}
+
+		public static function checkLoginExist($login)
+		{
+			$sql = new Sql();
+			$rst = $sql->select("
+				SELECT * FROM tb_users WHERE deslogin = :deslogin", [
+				':deslogin'=>$login
+			]);
+			//*var_dump($rst);exit;
+			return (count($rst) > 0);
 		}
 	}
 ?>

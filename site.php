@@ -6,6 +6,11 @@
 	use \tsh\Model\Address;
 	use \tsh\Model\User;
 
+	const MSGRGNGSITE001 = "Preencha o seu nome";
+	const MSGRGNGSITE002 = "Preencha o seu e-mail";
+	const MSGRGNGSITE003 = "Preencha a senha";
+	const MSGRGNGSITE004 = "Este endereço de e-mail já está sendo usado por outro usuário";
+
 	$app->get("/", function() {
 		$prd = Product::listAll();
 	    $page = new Page();
@@ -136,7 +141,9 @@
 	{
 		$page = new Page();
 		$page->setTpl("login", [
-			'error'=>getMsgError()
+			'error'=>getMsgError(),
+			'errorRegister'=>User::getErrorRegister(),
+			'registerValues'=>(isset($_SESSION['registerValues'])) ? $_SESSION['registerValues'] : ['name'=>'', 'email'=>'', 'phone'=>'']
 		]);
 	});	
 
@@ -157,4 +164,46 @@
 		header("Location: /login");
 		exit;
 	});
+
+	$app->post("/register", function()
+	{
+		$_SESSION['registerValues'] = $_POST;
+
+		$msgRgNgSite = NULL;
+
+		if (!isset($_POST['name']) || $_POST['name'] == '') {
+			$msgRgNgSite = MSGRGNGSITE001;
+		} else 
+		if (!isset($_POST['email']) || $_POST['email'] == '') {
+			$msgRgNgSite = MSGRGNGSITE002;
+		} else
+		if (!isset($_POST['password']) || $_POST['password'] == '') {
+			$msgRgNgSite = MSGRGNGSITE003;
+		} else
+		if (User::checkLoginExist($_POST['email']) === true) {
+			$msgRgNgSite = MSGRGNGSITE004;
+		}
+
+		if ($msgRgNgSite != NULL) {
+			User::setErrorRegister($msgRgNgSite);
+			header("Location: /login");
+			exit;
+		}
+
+		$user = new User();
+		$user->setData([
+			'inadmin'=>0,
+			'deslogin'=>$_POST['email'],
+			'desperson'=>$_POST['name'],
+			'desemail'=>$_POST['email'],
+			'despassword'=>$_POST['password'],
+			'nrphone'=>$_POST['phone']
+		]);
+		$user->save();
+
+		User::login($_POST['email'], $_POST['password']);
+
+		header('Location: /checkout');
+		exit;
+	});	
 ?>
