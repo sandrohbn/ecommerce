@@ -6,8 +6,8 @@
 	class Mailer
 	{
 		//*? Avaliar gravar bd ou ini.cfg criptografado
-		const USERNAME = ":USERNAME";
-		const PASSWORD = ":PASSWORD";
+		//const USERNAME = "?";
+		//const PASSWORD = "?";
 		const NAMEFROM = "TSH Loja";
 
 		private $mail;

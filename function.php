@@ -5,7 +5,7 @@
 
 	function formatPrice(float $vlprice)
 	{
-		return number_format($vlprice, 2, ",", ".");
+		return number_format(($vlprice=''?0:$vlprice), 2, ",", ".");
 	}
 
 	function checkLogin($inadmin = true)

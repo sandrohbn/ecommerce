@@ -9,8 +9,8 @@
 	{
 		const SESSION = "User";
 		//*? SECRET avaliar gravar bd ou ini.cfg criptografado (tam fixo 16,24, e outros)
-		const SECRET = ":SECRET"; 		 //usada em "Esqueci a senha"
-		const ALGORITMO = "AES-128-CBC"; //usada em "Esqueci a senha"
+		//const SECRET = "?"; //tam fixo 16,24, e outros
+		const ALGORITMO = "aes-256-cbc";
 		const MSGEXPTUSER001 = "Usuário ou senha inválidos";
 		const MSGEXPTUSER002 = "Não foi possivel recuperar a senha";
 		const ERROR_REGISTER = "UserErrorRegister";
@@ -50,7 +50,7 @@
 			{
 				$user = new User();
 
-				$data['desperson'] = utf8_encode($data['desperson']);//tras do bd faz o encode
+					$data['desperson'] = utf8_encode($data['desperson']);//tras do bd faz o encode
 
 				/*de campo a campo
 				$user->setiduser($data["iduser"]);
@@ -186,7 +186,7 @@
 			));
 		}
 
-		public static function getForgot($email)
+		public static function getForgot($email, $inadmin = true)
 		{
 			/*
 			$slc = "SELECT *
@@ -252,7 +252,9 @@
 
 				    $code = base64_encode($code . "::" . $rmdSecret);
 
-					$lnk = "http://www.tshecommerce.com.br:81/admin/forgot/reset?code=$code";
+					$lnk = "http://www.tshecommerce.com.br:81".($inadmin?"/admin":"")."/forgot/reset?code=$code";
+
+					//*var_dump($inadmin);var_dump($lnk);exit;
 
 					$mailer = new Mailer(
 						$dataPersonsUsers["desemail"],
@@ -290,9 +292,7 @@
 			*/
 			list($encrypted, $iv) = explode('::', base64_decode($code));
 
-			//var_dump($encrypted);
-			//var_dump($iv);
-			//exit;
+			//*var_dump($encrypted);var_dump($iv);exit;
 
     		$idrecovery = openssl_decrypt(
     			$encrypted, 
