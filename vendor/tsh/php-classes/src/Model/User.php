@@ -50,7 +50,7 @@
 			{
 				$user = new User();
 
-					$data['desperson'] = utf8_encode($data['desperson']);//tras do bd faz o encode
+				$data['desperson'] = utf8_encode($data['desperson']);//tras do bd faz o encode
 
 				/*de campo a campo
 				$user->setiduser($data["iduser"]);
@@ -378,7 +378,7 @@
 			$_SESSION[User::ERROR_REGISTER] = NULL;
 		}
 
-		public static function checkLoginExist($login)
+		public static function checkLoginExists($login)
 		{
 			$sql = new Sql();
 			$rst = $sql->select("

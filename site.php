@@ -10,6 +10,7 @@
 	const MSGRGNGSITE002 = "Preencha o seu e-mail";
 	const MSGRGNGSITE003 = "Preencha a senha";
 	const MSGRGNGSITE004 = "Este endereço de e-mail já está sendo usado por outro usuário";
+	const MSGSUCCSITE001 = "Dados salvos com sucesso!";
 
 	$app->get("/", function() {
 		$prd = Product::listAll();
@@ -170,7 +171,6 @@
 		$_SESSION['registerValues'] = $_POST;
 
 		$msgRgNgSite = NULL;
-
 		if (!isset($_POST['name']) || $_POST['name'] == '') {
 			$msgRgNgSite = MSGRGNGSITE001;
 		} else 
@@ -180,11 +180,10 @@
 		if (!isset($_POST['password']) || $_POST['password'] == '') {
 			$msgRgNgSite = MSGRGNGSITE003;
 		} else
-		if (User::checkLoginExist($_POST['email']) === true) {
+		if (User::checkLoginExists($_POST['email']) === true) {
 			$msgRgNgSite = MSGRGNGSITE004;
 		}
-
-		if ($msgRgNgSite != NULL) {
+		if ($msgRgNgSite !== NULL) {
 			User::setErrorRegister($msgRgNgSite);
 			header("Location: /login");
 			exit;
@@ -206,7 +205,7 @@
 		header('Location: /checkout');
 		exit;
 	});
-//
+
 	$app->get("/forgot", function()
 	{
 	    $page = new Page();
@@ -251,5 +250,55 @@
 	    $page = new Page();
 	    $page->setTpl("forgot-reset-success");		
 	});
-//
+
+	$app->get("/profile", function(){
+		User::verifyLogin(false);
+		$user = User::getFromSession();
+		$page = new Page();
+		$page->setTpl("profile", [
+			'user'=>$user->getData(),
+			'profileMsg'=>getMsgSuccess(),
+			'profileError'=>getMsgError()
+		]);
+	});
+
+	$app->post("/profile", function()
+	{
+		User::verifyLogin(false);
+		$user = User::getFromSession();
+
+		$msgRgNgSite = NULL;
+		if (!isset($_POST['desperson']) || $_POST['desperson'] == '') {
+			$msgRgNgSite = MSGRGNGSITE001;
+		} else 
+		if (!isset($_POST['desemail']) || $_POST['desemail'] == '') {
+			$msgRgNgSite = MSGRGNGSITE002;
+		} else
+		if ($_POST['desemail'] !== $user->getdesemail())
+		{
+			if (User::checkLoginExists($_POST['desemail']) === true) {
+				$msgRgNgSite = MSGRGNGSITE004;
+			}
+		}
+		if ($msgRgNgSite !== NULL) {
+			setMsgError($msgRgNgSite);
+			header("Location: /profile");
+			exit;
+		}
+
+		//Caso inadmin e despassword tenha sido descoberto pelo usuario e tente
+		//manipular esta informação usamos o comando abaixoo para sobreescrever
+		//mantendo valor original que veio do banco de dados
+		$_POST['inadmin'] = $user->getinadmin();
+		$_POST['despassword'] = $user->getdespassword();
+		$_POST['deslogin'] = $_POST['desemail']; //ño site login = email
+
+		$user->setData($_POST);
+		$user->update();
+
+		setMsgSuccess(MSGSUCCSITE001);
+
+		header('Location: /profile');
+		exit;
+	});
 ?>

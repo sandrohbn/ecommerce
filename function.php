@@ -2,6 +2,7 @@
 	use \tsh\Model\User;
 
 	CONST SESSION_ERROR = "Error";
+	CONST SESSION_SUCCESS = "Success";
 
 	function formatPrice(float $vlprice)
 	{
@@ -45,5 +46,25 @@
 	function clearMsgError()
 	{
 		$_SESSION[SESSION_ERROR] = NULL;
+	}
+	
+	//public static 
+	function setMsgSuccess($msg)
+	{
+		$_SESSION[SESSION_SUCCESS] = $msg;
+	}
+
+	//public static 
+	function getMsgSuccess()
+	{
+		$msg = (isset($_SESSION[SESSION_SUCCESS]) ? $_SESSION[SESSION_SUCCESS] : NULL);
+		clearMsgSuccess();
+		return $msg;
+	}
+
+	//public static 
+	function clearMsgSuccess()
+	{
+		$_SESSION[SESSION_SUCCESS] = NULL;
 	}
 ?>
