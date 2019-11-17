@@ -1,8 +1,8 @@
 <?php //arquivo de configuraçao
 	use \tsh\Model\User;
 
-	CONST SESSION_ERROR = "Error";
-	CONST SESSION_SUCCESS = "Success";
+	const SESSION_ERROR = "Error";
+	const SESSION_SUCCESS = "Success";
 
 	function formatPrice(float $vlprice)
 	{
@@ -32,6 +32,7 @@
 	function setMsgError($msg)
 	{
 		$_SESSION[SESSION_ERROR] = $msg;
+		//*var_dump($msg);exit;
 	}
 
 	//public static 

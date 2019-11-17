@@ -36,10 +36,11 @@
 		//public function getData($key = null)
 		public function getData()
 		{
+			//*? avalir se pode inicializar tudo ''
 			//if (!is_null($key)) {
-			//	return isset($this->value[$key]) ? $this->value[$key] : null;
+				return isset($this->value) ? $this->value : '';
 			//} else {
-				return $this->value;
+			//	return $this->value;
 			//}			    
 		}
 	}

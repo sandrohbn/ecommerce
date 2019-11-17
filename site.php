@@ -10,6 +10,13 @@
 	const MSGRGNGSITE002 = "Preencha o seu e-mail";
 	const MSGRGNGSITE003 = "Preencha a senha";
 	const MSGRGNGSITE004 = "Este endereço de e-mail já está sendo usado por outro usuário";
+	const MSGRGNGSITE005 = "Preencha o endereço";
+	const MSGRGNGSITE006 = "Preencha a cidade";
+	const MSGRGNGSITE007 = "Preencha o estado";
+	const MSGRGNGSITE008 = "Preencha o país";
+	const MSGRGNGSITE009 = "Preencha o CEP";
+	const MSGRGNGSITE010 = "Preencha o bairro";
+
 	const MSGSUCCSITE001 = "Dados salvos com sucesso!";
 
 	$app->get("/", function() {
@@ -128,14 +135,89 @@
 	{
 		User::verifyLogin(false);
 
-		$cart = Cart::getFromSession();
 		$address = new Address();
+
+		$cart = Cart::getFromSession();
+
+		//*? isset verifica se a variável é definida.
+		if (isset($_GET['zipcode'])) {
+			$_GET['zipcode'] = $cart->getdeszipcode();
+		}
+		//*/
+		if (isset($_GET['zipcode']))
+		{
+			//*	var_dump('aqui');exit;
+			$address->loadFromCEP($_GET['zipcode']);//os nomes que viram do webservice serão diferente do banco de dados, por isso é necessário fazer converção dos nomes 
+
+			$cart->setdeszipcode($_GET['zipcode']);
+			$cart->save();
+			$cart->getCalculateTotal();
+		}
+
+		//inicializa com '' os campos cujo o cep informado não retorne valor
+		if (!$address->getdesaddress()) $address->setdesaddress('');
+		if (!$address->getdescomplement()) $address->setdescomplement('');
+		if (!$address->getdesdistrict()) $address->setdesdistrict('');
+		if (!$address->getdescity()) $address->setdescity('');
+		if (!$address->getdesstate()) $address->setdesstate('');
+		if (!$address->getdescountry()) $address->setdescountry('');
+		if (!$address->getdeszipcode()) $address->setdeszipcode('');
 
 		$page = new Page();
 		$page->setTpl("checkout", [
 			'cart'=>$cart->getData(),
-			'address'=>$address->getData()
+			'address'=>$address->getData(),
+			'products'=>$cart->getProducts(),
+			'error'=>Address::getMsgError()
 		]);
+	});
+
+	$app->post("/checkout", function()
+	{
+		User::verifyLogin(false); //false pq não esta na administração
+
+		//*e Criar metodo com foreach para validação de formularios
+		$msgRgNgSite = NULL;
+		if (!isset($_POST['desaddress']) || $_POST['desaddress'] === '') {
+			$msgRgNgSite = MSGRGNGSITE005;
+		} else 
+		if (!isset($_POST['descity']) || $_POST['descity'] === '') {
+			$msgRgNgSite = MSGRGNGSITE006;
+		} else
+		if (!isset($_POST['desstate']) || $_POST['desstate'] === '') {
+			$msgRgNgSite = MSGRGNGSITE007;
+		} else
+		if (!isset($_POST['descountry']) || $_POST['descountry'] === '') {
+			$msgRgNgSite = MSGRGNGSITE008;
+		} else
+		if (!isset($_POST['zipcode']) || $_POST['zipcode'] === '') { //no bd zipcode = deszipcode
+			$msgRgNgSite = MSGRGNGSITE009;
+		} else
+		if (!isset($_POST['desdistrict']) || $_POST['desdistrict'] === '') {
+			$msgRgNgSite = MSGRGNGSITE010;
+		}
+
+		//*var_dump($address);exit;
+		if ($msgRgNgSite != NULL) {
+			//*var_dump($msgRgNgSite);exit;
+			Address::setMsgError($msgRgNgSite);
+			header('Location: /checkout');
+			exit;
+		}		
+
+		$user = User::getFromSession();
+
+		$address = new Address();
+
+		$_POST['deszipcode'] = $_POST['zipcode'];
+		$_POST['idperson'] = $user->getidperson();
+
+		$address->setData($_POST); //recebe post do formulario, relacionando os "name"s e os sobrescrito anteriormente aos campos do objeto/bd
+		
+		$address->save();
+
+		header("Location: /order");
+		exit;
 	});
 
 	$app->get("/login", function()
