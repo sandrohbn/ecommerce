@@ -361,6 +361,30 @@
 			]);
 		}
 
+		public function getOrders()
+		{
+			$sql = new Sql();
+
+			$rst = $sql->select(
+				"SELECT *
+				   FROM TB_ORDERS ORD
+				        JOIN TB_ORDERSSTATUS OST
+				          ON OST.IDSTATUS = ORD.IDSTATUS
+				        JOIN TB_CARTS CAR
+				          ON CAR.IDCART = ORD.IDCART
+				        JOIN TB_USERS USR
+				          ON USR.IDUSER = ORD.IDUSER
+				        JOIN TB_ADDRESSES ADR
+					          ON ADR.IDADDRESS = ORD.IDADDRESS
+				        JOIN TB_PERSONS PER
+				          ON PER.IDPERSON = USR.IDPERSON
+				  WHERE ORD.IDUSER = :iduser",
+				[':iduser'=>$this->getiduser()]
+			);
+
+			return $rst;
+		}
+
 		public static function setErrorRegister($msg)
 		{
 			$_SESSION[User::ERROR_REGISTER] = $msg;
@@ -388,5 +412,29 @@
 			//*var_dump($rst);exit;
 			return (count($rst) > 0);
 		}
+
+		public static function listPage($page=1, $itemPerPage=10, $search="")
+		{
+			$start = ($page-1) * $itemPerPage;	
+			$sql = new Sql();
+			$rst = $sql->select(
+				"SELECT usr.*, prs.*
+				   FROM tb_users usr
+				        INNER JOIN tb_persons prs
+				           ON prs.idperson = usr.idperson"
+				.(($search=="") ? "" : 
+				" WHERE prs.desperson LIKE '%".$search."%'").
+				" ORDER BY prs.desperson
+				  LIMIT $start, $itemPerPage"
+			);
+
+			$rstTotal = $sql->select("SELECT FOUND_ROWS() AS RSTTOTAL");
+
+			return [
+				'data'=>$rst,
+				'total'=>(int)$rstTotal[0]["RSTTOTAL"],
+				'pages'=>ceil($rstTotal[0]["RSTTOTAL"] / $itemPerPage)
+			];         //ceil arrendonda para cima
+		}		
 	}
 ?>

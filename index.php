@@ -20,6 +20,7 @@
 	require_once("admin-category.php");
 	require_once("admin-login.php");
 	require_once("admin-product.php");
+	require_once("admin-orders.php");
 	require_once("admin-user.php");
 	require_once("site.php");
 

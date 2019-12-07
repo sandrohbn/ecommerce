@@ -2,12 +2,80 @@
 	use \tsh\PageAdmin;
 	use \tsh\Model\User;
 
-	//Tela lista todos usuarios 7:55
-	$app->get("/admin/users", function() {
+	const LINHAPORPAGINA = 10;
+
+	$app->get("/admin/users/:iduser/password", function($iduser) {
 		User::verifyLogin();
-		$user = User::listAll();
+		//var_dump($iduser);
+		$user = new User();
+		$user->get((int)$iduser);
 	    $page = new PageAdmin();
-	    $page->setTpl("users", array("user"=>$user));
+	    $page->setTpl("users-password", [
+	    	'user'=>$user->getData(),
+			'msgSuccess'=>getMsgSuccess(),
+			'msgError'=>getMsgError()
+	    ]);
+	});
+
+	$app->post("/admin/users/:iduser/password", function($iduser) {
+		User::verifyLogin();
+
+		$msgRgNgAdm = NULL;
+
+		if (!isset($_POST['despassword']) || $_POST['despassword'] === '') {
+			$msgRgNgAdm = MSGRGNGADM012;
+		} else
+		if (!isset($_POST['despassword-confirm']) || $_POST['despassword-confirm'] === '') {
+			$msgRgNgAdm = MSGRGNGADM013;
+		} else
+		if ($_POST['despassword'] !== $_POST['despassword-confirm']) {
+			$msgRgNgAdm = MSGRGNGADM015;
+		}
+
+		if ($msgRgNgAdm !== NULL) {
+			setMsgError($msgRgNgAdm);
+			header("Location: /admin/users/$iduser/password");
+			exit;
+		}
+
+		$user = new User();
+		$user->get((int)$iduser);
+		$user->setPassword(User::getPasswordHash($_POST['despassword']));
+
+		setMsgSuccess(MSGSUCCADM002);
+
+		header("Location: /admin/users/$iduser/password");
+		exit;
+	});
+
+	$app->get("/admin/users", function() 
+	{
+		User::verifyLogin();
+
+		$search = (isset($_GET['search'])) ? $_GET['search'] : "";
+		$page = (isset($_GET['page'])) ? $_GET['page'] : 1;
+
+		$pagination = User::listPage($page, LINHAPORPAGINA, $search);
+
+		$pages = [];
+
+		for ($x = 0; $x < $pagination['pages']; $x++)
+		{
+			array_push($pages, [
+				'href'=>'/admin/users?'.http_build_query([
+					'page'=>$x+1,
+					'search'=>$search
+				]),
+				'text'=>$x+1
+			]);
+		}
+
+	    $page = new PageAdmin();
+	    $page->setTpl("users", array(
+	    	"user"=>$pagination['data'],
+	    	"search"=>$search,
+	    	"pages"=>$pages
+	    ));
 	});
 
 	//Exibe tela cria usuario (usando get responde com html)
@@ -31,7 +99,7 @@
 	});
 
 	//Exibe tela com usuario especifico
-	$app->get("/admin/users/update/:iduser", function($iduser) {
+	$app->get("/admin/users/:iduser/update", function($iduser) {
 		User::verifyLogin();
 		//var_dump($iduser);
 		$user = new User();
@@ -41,7 +109,7 @@
 	});
 
 	//Efetiva gravação do usuario (via post espera receber dados para grava no bd)
-	$app->post("/admin/users/update/:iduser", function($iduser) {
+	$app->post("/admin/users/:iduser/update", function($iduser) {
 		User::verifyLogin();
 		$user = new User();
 		$_POST["inadmin"] = (isset($_POST["inadmin"]))?1:0;
@@ -52,7 +120,7 @@
 		exit;
 	});
 	
-	$app->get("/admin/users/delete/:iduser", function($iduser)
+	$app->get("/admin/users/:iduser/delete", function($iduser)
 	{
 		User::verifyLogin();
 		$user = new User();

@@ -4,14 +4,38 @@
 	use \tsh\Model\Category;
 	use \tsh\Model\Product;
 
+	//const LINHAPORPAGINA = 10;
+
 	$app->get("/admin/categories", function()
 	{
 		User::verifyLogin();
-		$categories = category::listAll();
+
+		$search = (isset($_GET['search'])) ? $_GET['search'] : "";
+		$page = (isset($_GET['page'])) ? $_GET['page'] : 1;
+
+		$pagination = Category::listPage($page, LINHAPORPAGINA, $search);
+
+		$pages = [];
+
+		for ($x = 0; $x < $pagination['pages']; $x++)
+		{
+			array_push($pages, [
+				'href'=>'/admin/categories?'.http_build_query([
+					'page'=>$x+1,
+					'search'=>$search
+				]),
+				'text'=>$x+1
+			]);
+		}
+
+		//* $categories = category::listAll();
+
 	    $page = new PageAdmin();
-	    $page->setTpl("categories", 
-	    	["categories"=>$categories]
-	    );
+	    $page->setTpl("categories", [
+	    	"categories"=>$pagination['data'],
+	    	"search"=>$search,
+	    	"pages"=>$pages
+	    ]);
 	});
 	
 	$app->get("/admin/categories/create", function()

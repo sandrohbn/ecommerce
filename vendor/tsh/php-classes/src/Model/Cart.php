@@ -111,7 +111,7 @@
 			$rst = $sql->select("
 				SELECT prd.idproduct, prd.desproduct, prd.vlprice, prd.vlwidth
 				      ,prd.vlheight, prd.vllength, prd.vlweight, prd.desurl
-				      ,count(1) nrqtd, sum(prd.vlprice) vlpricetotal
+				      ,count(1) nrqtd, sum(prd.vlprice) vltotal
 				  FROM tb_cartsproducts cap
 				       JOIN tb_products prd
 				         ON prd.idproduct = cap.idproduct

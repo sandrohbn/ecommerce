@@ -155,5 +155,26 @@
 				 [':idproduct'=>$this->getidproduct()]
 			);
 		}
+
+		public static function listPage($page=1, $itemPerPage=10, $search="")
+		{
+			$start = ($page-1) * $itemPerPage;	
+			$sql = new Sql();
+			$rst = $sql->select(
+				"SELECT * FROM tb_products prd"
+				.(($search=="") ? "" : 
+				" WHERE prd.desproduct LIKE '%".$search."%'").
+				" ORDER BY prd.desproduct
+				  LIMIT $start, $itemPerPage"
+			);
+
+			$rstTotal = $sql->select("SELECT FOUND_ROWS() AS RSTTOTAL");
+
+			return [
+				'data'=>$rst,
+				'total'=>(int)$rstTotal[0]["RSTTOTAL"],
+				'pages'=>ceil($rstTotal[0]["RSTTOTAL"] / $itemPerPage)
+			];         //ceil arrendonda para cima
+		}
 	}
 ?>

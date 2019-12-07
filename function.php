@@ -1,5 +1,6 @@
 <?php //arquivo de configuraçao
 	use \tsh\Model\User;
+	use \tsh\Model\Cart;
 
 	const SESSION_ERROR = "Error";
 	const SESSION_SUCCESS = "Success";
@@ -7,6 +8,11 @@
 	function formatPrice(float $vlprice)
 	{
 		return number_format(($vlprice=''?0:$vlprice), 2, ",", ".");
+	}
+
+	function formatDate($date)
+	{
+		return date('d/m/Y', strtotime($date));
 	}
 
 	function checkLogin($inadmin = true)
@@ -67,5 +73,19 @@
 	function clearMsgSuccess()
 	{
 		$_SESSION[SESSION_SUCCESS] = NULL;
+	}
+
+	function getCartNrQtd()
+	{
+		$cart = Cart::getFromSession();
+		$totals = $cart->getProductsTotals();
+		return $totals['nrqtd'];
+	}
+
+	function getCartVlSubTotal()
+	{
+		$cart = Cart::getFromSession();
+		$totals = $cart->getProductsTotals();
+		return formatPrice($totals['vlprice']);
 	}
 ?>

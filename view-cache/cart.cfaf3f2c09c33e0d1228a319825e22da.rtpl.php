@@ -87,7 +87,7 @@
                                                 <!--
                                                 <span class="amount">$700.00</span> 
                                                 -->
-                                                <span class="amount">R$<?php echo formatPrice($value1["vlpricetotal"]); ?></span> 
+                                                <span class="amount">R$<?php echo formatPrice($value1["vltotal"]); ?></span> 
                                             </td>
                                         </tr>
                                     <?php } ?>
