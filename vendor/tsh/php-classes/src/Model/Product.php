@@ -1,4 +1,4 @@
-<?php 
+<?php
 	namespace tsh\Model;
 
 	use \tsh\DB\Sql;
@@ -31,15 +31,16 @@
 			 	:idproduct, :desproduct, :vlprice, :vlwidth,
 				:vlheight, :vllength, :vlweight, :desurl)",
 			  array(
-				":idproduct"=>$this->getidproduct(), 
+				":idproduct"=>$this->getidproduct(),
 				":desproduct"=>$this->getdesproduct(),
-				":vlprice"=>$this->getvlprice(), 
+				":vlprice"=>$this->getvlprice(),
 				":vlwidth"=>$this->getvlwidth(),
-				":vlheight"=>$this->getvlheight(), 
+				":vlheight"=>$this->getvlheight(),
 				":vllength"=>$this->getvllength(),
-				":vlweight"=>$this->getvlweight(), 
+				":vlweight"=>$this->getvlweight(),
 				":desurl"=>$this->getdesurl()
 			));
+			//*var_dump($this->getdesurl()); exit;
 			$this->setData($rsl[0]);
 		}
 
@@ -64,18 +65,20 @@
 
 		public function checkPhoto()
 		{
-			if (file_exists(
-				$_SERVER['DOCUMENT_ROOT'].DIRECTORY_SEPARATOR.
-				"res".DIRECTORY_SEPARATOR.
-				"site".DIRECTORY_SEPARATOR.
-				"img".DIRECTORY_SEPARATOR.
-				"product".DIRECTORY_SEPARATOR.
-				$this->getidproduct().".jpg"))
+			$imageDestino = str_replace("/", DIRECTORY_SEPARATOR, $_SERVER['DOCUMENT_ROOT']) . 
+				DIRECTORY_SEPARATOR . "res" . 
+				DIRECTORY_SEPARATOR . "site" . 
+				DIRECTORY_SEPARATOR . "img" . 
+				DIRECTORY_SEPARATOR . "product" . 
+				DIRECTORY_SEPARATOR . $this->getidproduct() . ".jpg";
+
+			if (file_exists($imageDestino))
 			{
-				$url = "/res/site/img/product/".$this->getidproduct().".jpg";
+				$url = "/res/site/img/product/" . $this->getidproduct() . ".jpg";
 			} else {
 				$url = "/res/site/img/product.jpg";
 			}
+
 			return $this->setdesphoto($url);
 		}
 
@@ -113,12 +116,15 @@
 				}
 				if (isset($image))
 				{
-					$imageDestino = $_SERVER['DOCUMENT_ROOT'].DIRECTORY_SEPARATOR.
-						"res".DIRECTORY_SEPARATOR.
-						"site".DIRECTORY_SEPARATOR.
-						"img".DIRECTORY_SEPARATOR.
-						"product".DIRECTORY_SEPARATOR.
-						$this->getidproduct().".jpg";
+					$imageDestino = str_replace("/", DIRECTORY_SEPARATOR, $_SERVER['DOCUMENT_ROOT']) . 
+						DIRECTORY_SEPARATOR . "res" . 
+						DIRECTORY_SEPARATOR . "site" . 
+						DIRECTORY_SEPARATOR . "img" . 
+						DIRECTORY_SEPARATOR . "product" . 
+						DIRECTORY_SEPARATOR . $this->getidproduct() . ".jpg";
+
+					//*var_dump($image); var_dump($imageDestino); exit;
+
 					imagejpeg($image, $imageDestino);
 					imagedestroy($image);
 					$this->checkPhoto();

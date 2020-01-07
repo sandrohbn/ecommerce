@@ -13,15 +13,16 @@
 			"data"=>[]
 		];
 
-		public function __construct($opt = array(), $tpl_dir = "/view/")
+		public function __construct($opt = array(), $tpl_dir = DIRECTORY_SEPARATOR . "view". DIRECTORY_SEPARATOR)
 		{
 			$this->default["data"]["session"] = $_SESSION;
 
 			$this->option = array_merge($this->default, $opt);
 
 			$config = array(
-				"tpl_dir"       => $_SERVER["DOCUMENT_ROOT"].$tpl_dir,
-				"cache_dir"     => $_SERVER["DOCUMENT_ROOT"]."/view-cache/",
+				"tpl_dir"       => str_replace("/", DIRECTORY_SEPARATOR, $_SERVER['DOCUMENT_ROOT']) . $tpl_dir,
+				"cache_dir"     => str_replace("/", DIRECTORY_SEPARATOR, $_SERVER['DOCUMENT_ROOT']) . 
+					DIRECTORY_SEPARATOR . "view-cache" . DIRECTORY_SEPARATOR,
 				"debug"         => false // set to false to improve the speed
 			);
 

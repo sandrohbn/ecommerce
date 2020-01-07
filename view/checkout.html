@@ -73,7 +73,9 @@
 											<input type="text" id="billing_state" name="descountry" placeholder="País" value="{$address.descountry}" class="input-text ">
 										</p>
 										<div class="clear"></div>
+										
 										<h3 id="order_review_heading" style="margin-top:30px;">Detalhes do Pedido</h3>
+
 										<div id="order_review" style="position: relative;">
 											<table class="shop_table">
 												<thead>
@@ -113,6 +115,20 @@
 													</tr>
 												</tfoot>
 											</table>
+
+											<p id="billing_state_field" class="form-row form-row-first address-field validate-state" data-o_class="form-row form-row-first address-field validate-state">
+												<input type="radio" checked="checked" id="method-boleto" name="payment-method" value="1" style="float:left; margin: 20px;">
+												<label class="" for="method-boleto"><img style="height:44px;" src="/res/site/img/logo-boleto.png"></label>
+											</p>
+											<p id="billing_state_field" class="form-row form-row-first address-field validate-state" data-o_class="form-row form-row-first address-field validate-state">
+												<input type="radio" id="method-pagseguro" name="payment-method" value="2" style="float:left; margin: 20px;">
+												<label class="" for="method-pagseguro"><img style="height:44px;" src="/res/site/img/logo-pagseguro.png"></label>
+											</p>
+											<p id="billing_state_field" class="form-row form-row-first address-field validate-state" data-o_class="form-row form-row-first address-field validate-state">
+												<input type="radio" id="method-paypal" name="payment-method" value="3" style="float:left; margin: 20px;">
+												<label class="" for="method-paypal"><img style="height:44px;" src="/res/site/img/logo-paypal.png"></label>
+											</p>
+
 											<div id="payment">
 												<div class="form-row place-order">
 													<input type="submit" data-value="Place order" value="Continuar" id="place_order" name="woocommerce_checkout_place_order" class="button alt">

@@ -54,7 +54,7 @@
 				array_push($html, '<li><a href="/category/'.$row['idcategory'].'">'.$row['descategory'].'</a></li>');
 			}
 			file_put_contents(
-				$_SERVER['DOCUMENT_ROOT'].DIRECTORY_SEPARATOR."view".DIRECTORY_SEPARATOR."category-menu.html", 
+				$_SERVER['DOCUMENT_ROOT'] . "/view/category-menu.html" , 
 				implode('', $html)
 			);
 		}

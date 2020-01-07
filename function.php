@@ -7,7 +7,7 @@
 
 	function formatPrice(float $vlprice)
 	{
-		return number_format(($vlprice=''?0:$vlprice), 2, ",", ".");
+		return number_format((isset($vlprice) && $vlprice <> '' ? $vlprice : 0), 2, ",", ".");
 	}
 
 	function formatDate($date)
@@ -86,6 +86,6 @@
 	{
 		$cart = Cart::getFromSession();
 		$totals = $cart->getProductsTotals();
-		return formatPrice($totals['vlprice']);
+		return formatPrice(isset($totals['vlprice']) ? $totals['vlprice'] : 0);
 	}
 ?>

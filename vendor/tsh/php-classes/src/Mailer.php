@@ -15,8 +15,10 @@
 		public function __construct($toAddress, $toName, $subject, $tplName, $data = array())
 		{
 			$config = array(
-				"tpl_dir"   => $_SERVER["DOCUMENT_ROOT"]."/view/email/",
-				"cache_dir" => $_SERVER["DOCUMENT_ROOT"]."/view-cache/",
+				"tpl_dir"   => str_replace("/", DIRECTORY_SEPARATOR, $_SERVER['DOCUMENT_ROOT']) . 
+					DIRECTORY_SEPARATOR . "view" . DIRECTORY_SEPARATOR . "email" . DIRECTORY_SEPARATOR,
+				"cache_dir" => str_replace("/", DIRECTORY_SEPARATOR, $_SERVER['DOCUMENT_ROOT']) . 
+					DIRECTORY_SEPARATOR . "view-cache" . DIRECTORY_SEPARATOR,
 				"debug"     => true // set to false to improve the speed
 			);
 

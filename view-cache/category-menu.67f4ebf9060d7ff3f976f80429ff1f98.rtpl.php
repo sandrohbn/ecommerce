@@ -1,0 +1,1 @@
+<?php if(!class_exists('Rain\Tpl')){exit;}?><li><a href="/category/1">Android</a></li><li><a href="/category/7">Bolos 15 anos</a></li><li><a href="/category/6">Bolos casamento</a></li><li><a href="/category/4">Bolos infantis</a></li><li><a href="/category/5">Bolos temáticos</a></li><li><a href="/category/2">IOS</a></li><li><a href="/category/3">Samsung</a></li>

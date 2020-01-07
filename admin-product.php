@@ -54,6 +54,7 @@
 		User::verifyLogin();
 		$product = new Product();
 		$product->get((int)$idproduct);
+		//* var_dump($product->getData()); exit;
 		$page = new PageAdmin();
 		$page->setTpl("products-update",
 			['product'=>$product->getData()]
@@ -66,8 +67,9 @@
 		$product->get((int)$idproduct);
 		$product->setData($_POST); //recebe os campos da classe
 		$product->save();
-		//var_dump($_FILES); exit;
+		//*		var_dump($_FILES);
 		$product->setPhoto($_FILES["file"]); //recebe nome de arquivo
+		//*		var_dump($_FILES["file"]); exit;
 		header("Location: /admin/products");
 		exit;
 	});
